@@ -22,6 +22,7 @@ import TransitionSection from './components/TransitionSection';
 import CardSlider from './components/CardSlider';
 import FAQ from './components/Faq';
 import Contact from './components/Contact';
+import ProgressBar from './components/ProgressBar';
 
 const App = () => {
   const [userEmail, setUserEmail] = useState("");
@@ -67,6 +68,9 @@ const App = () => {
         <Route path='/card' element={<CardSlider />} />
         <Route path='/faq' element={<FAQ />} />      
         <Route path='/contact' element={<Contact />} />   
+        <Route path='/prog' element={<ProgressBar />} />
+
+
       </Routes>
     </div>
   );

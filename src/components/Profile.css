@@ -110,10 +110,13 @@ body {
 }
 
 .card-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    display: flex; /* Change to flexbox */
+    flex-wrap: wrap; /* Allow cards to wrap if there are too many */
+    justify-content: center; /* Center the items horizontally */
     gap: 20px; 
+    padding: 0 20px; /* Optional: Add padding to prevent cards touching the edges */
 }
+
 
 .card {
     background-color: #edeaea; /* Default color */

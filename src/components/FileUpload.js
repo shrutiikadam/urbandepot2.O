@@ -20,13 +20,14 @@ const FileUpload = ({ onFileChange, label, required, id }) => {
 
   const handleFileChange = (file, id) => {
     if (file) {
-      console.log(`File received in ${id}:`, file);
-      setFiles([file]);
-      onFileChange(file, id);
+        console.log(`File received in ${id}:`, file);
+        setFiles([file]);
+        onFileChange(file, id); // Make sure to pass the file and id to the parent function
     } else {
-      console.error("No file was passed to handleFileChange.");
+        console.error("No file was passed to handleFileChange.");
     }
-  };
+};
+
 
   const renderFilePreview = (file) => {
     if (file.type.startsWith("image/")) {

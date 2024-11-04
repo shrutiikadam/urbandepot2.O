@@ -259,62 +259,68 @@ const Profile = () => {
             </div>
     
             {activeTab === 'bookings' && (
-            <div className="section">
-                <h3 className="section-heading">Your Bookings</h3>
-                <div className="section-space"></div>
-                {bookings.length > 0 ? (
-                    <div className="card-container">
-                        {bookings.map((booking) => (
-                            <div key={booking.id} className="card">
-                                <span className={`badge1 ${getBookingStatus(booking).toLowerCase()}`}>{getBookingStatus(booking)}</span>
-                                <h4><FaParking /> Booking ID: {booking.id}</h4>
-                                <p><strong>License Plate:</strong> {booking.licensePlate}</p>
-                                <p><strong>Check-in:</strong> {booking.checkin}</p>
-                                <p><strong>Check-out:</strong> {booking.checkout}</p>
-                                <p><strong>Vehicle Type:</strong> {booking.vehicleType}</p>
-                                <p><FaMoneyBill /> <strong>Charge:</strong> Rs. {booking.total_amount}</p>
-                                <button
-                                    className="delete-button"
-                                    onClick={() => confirmCancelBooking(booking.id)}
-                                >
-                                    <FaTrash /> Cancel Booking
-                                </button>
-                            </div>
-                        ))}
+    <div className="section">
+        <h3 className="section-heading">Your Bookings</h3>
+        <div className="section-space"></div>
+        {bookings.length > 0 ? (
+            <div className="card-container">
+                {bookings.map((booking) => (
+                    <div key={booking.id} className="card">
+                        <span className={`badge1 ${getBookingStatus(booking).toLowerCase()}`}>
+                            {getBookingStatus(booking)}
+                        </span>
+                        <h4><FaParking />   Booking ID: {booking.id}</h4>
+                        <p><strong>Place:</strong> {booking.place}</p> {/* Display Place Name */}
+                        <p><strong>License Plate:</strong> {booking.licensePlate}</p>
+                        <p><strong>Check-in:</strong> {booking.checkin}</p>
+                        <p><strong>Check-out:</strong> {booking.checkout}</p>
+                        <p><strong>Vehicle Type:</strong> {booking.vehicleType}</p>
+                        <p><FaMoneyBill /> <strong>Charge:</strong> Rs. {booking.total_amount}</p>
+                        <button
+                            className="delete-button"
+                            onClick={() => confirmCancelBooking(booking.id)}
+                        >
+                            <FaTrash /> Cancel Booking
+                        </button>
                     </div>
-                ) : (
-                    <p>No bookings found.</p>
-                )}
+                ))}
             </div>
+        ) : (
+            <p>No bookings found.</p>
         )}
+    </div>
+)}
 
-    
-            {activeTab === 'places' && (
-                <div className="section">
-                    <h3 className="section-heading">Registered Places</h3>
-                    <div className="section-space"></div>
-                    {registeredPlaces.length > 0 ? (
-                        <div className="card-container">
-                            {registeredPlaces.map((place) => (
-                                <div key={place.id} className="card">
-                                    <h4><FaMapMarkerAlt /> Place #{place.id}</h4>
-                                    <p><strong>Place Name:</strong> {place.address}</p>
-                                    <p><strong>Location:</strong> {place.parking_number}</p>
-                                    <p><strong>Parking Spots:</strong> {place.charge}</p>
-                                    <button
-                                        className="delete-button"
-                                        onClick={() => confirmDeletePlace(place.id)}
-                                    >
-                                        <FaTrash /> Delete
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>No registered places found.</p>
-                    )}
-                </div>
-            )}
+
+{activeTab === 'places' && (
+    <div className="section">
+        <h3 className="section-heading">Registered Places</h3>
+        <div className="section-space"></div>
+        {registeredPlaces.length > 0 ? (
+            <div className="card-container">
+                {registeredPlaces.map((place) => (
+                    <div key={place.id} className="card">
+                        <h4><FaMapMarkerAlt /> {place.placeName}</h4> {/* Display Place Name as Title */}
+                        <p><strong>Address:</strong> {place.address}</p>
+                        <p><strong>Start Date:</strong> {place.dateRange.from}</p> {/* Start Date */}
+                        <p><strong>End Date:</strong> {place.dateRange.to}</p>   {/* End Date */}
+                        <p><strong>Access Type:</strong> {place.accessType}</p> {/* Display Access Type */}
+                        <button
+                            className="delete-button"
+                            onClick={() => confirmDeletePlace(place.id)}
+                        >
+                            <FaTrash /> Delete
+                        </button>
+                    </div>
+                ))}
+            </div>
+        ) : (
+            <p>No registered places found.</p>
+        )}
+    </div>
+)}
+
+
 
             {activeTab === 'notifications' && (
                 <div className="section">

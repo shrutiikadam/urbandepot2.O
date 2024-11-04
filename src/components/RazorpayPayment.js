@@ -1,47 +1,28 @@
-import React, { useEffect, useState } from 'react'; // Import useState and useEffect
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore'; // Import Firestore functions
-import db from '../firebaseConfig'; // Adjust the path to your Firebase config
+import { doc, getDoc } from 'firebase/firestore';
+import db from '../firebaseConfig';
 import './RazorpayPayment.css';
 import emailjs from 'emailjs-com';
-import Loading from './Loading'; // Import your loading component
-
+import Loading from './Loading';
 
 const razorpayApiKey = process.env.REACT_APP_RAZORPAY_API_KEY;
 
 const RazorpayPayment = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { address, place, reservationData } = location.state;
+  const { checkinDate, checkoutDate, checkinTime, checkoutTime, name, email, contactNumber, vehicleType } = reservationData;
 
-  // Destructure address, placeName, and reservationData from location.state
-  const { 
-    address, 
-    place, 
-    reservationData 
-  } = location.state;
+  const [ownerEmail, setOwnerEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Extract reservation details
-  const { 
-    checkinDate, 
-    checkoutDate, 
-    checkinTime, 
-    checkoutTime, 
-    name, 
-    email, 
-    contactNumber,
-    vehicleType 
-  } = reservationData;
-
-  const [ownerEmail, setOwnerEmail] = useState(''); 
-  const [loading, setLoading] = useState(false); // Add loading state
-
-  // State for owner's email
   useEffect(() => {
     if (!location.state || !place) {
       console.error("location.state or place is missing. Check if 'place' is correctly passed.");
       return;
     }
-  
+
     const fetchOwnerEmail = async () => {
       try {
         const placeDocRef = doc(db, 'places', place);
@@ -58,57 +39,64 @@ const RazorpayPayment = () => {
         console.error("Error fetching owner email:", error);
       }
     };
-  
+
     fetchOwnerEmail();
   }, [place, location.state]);
-  
 
-  // Function to calculate total amount based on time difference
   const calculateTotalAmount = () => {
     const checkin = new Date(`${checkinDate}T${checkinTime}`);
     const checkout = new Date(`${checkoutDate}T${checkoutTime}`);
-    const differenceInHours = (checkout - checkin) / (1000 * 60 * 60); // Convert milliseconds to hours
+    const differenceInHours = (checkout - checkin) / (1000 * 60 * 60); // Hours difference
+
+    console.log("Check-in Date & Time:", checkin);
+    console.log("Check-out Date & Time:", checkout);
+    console.log("Difference in Hours:", differenceInHours);
     
-    // Define hourly rates
     const hourlyRates = {
-      bike: 20, // Hourly rate for bike in INR
-      car: 30   // Hourly rate for car in INR
+        car: 30,         
+        bike: 20,  
+        scooter: 20,     
+        bicycle: 10      
     };
-
-    // Determine the hourly rate based on vehicle type
-    const hourlyRate = vehicleType === 'car' ? hourlyRates.car : hourlyRates.bike;
-
-    const platformFeePercentage = 0.05; // Platform fee of 5%
     
-    const totalAmount = differenceInHours * hourlyRate * 100; // Convert to paise (assuming 1 INR = 100 paise)
-    const platformFee = totalAmount * platformFeePercentage; // Calculate platform fee
-    const finalTotalAmount = totalAmount + platformFee; // Final amount including platform fee
-
+    const hourlyRate = hourlyRates[vehicleType.toLowerCase()] || 0; 
+    console.log("Vehicle Type:", vehicleType);
+    console.log("Hourly Rate:", hourlyRate);
+    
+    const platformFeePercentage = 0.05; 
+    console.log("Platform Fee Percentage:", platformFeePercentage);
+    
+    const totalAmount = differenceInHours * hourlyRate; 
+    console.log("Total Amount (before platform fee):", totalAmount);
+    
+    const platformFee = totalAmount * platformFeePercentage; 
+    console.log("Platform Fee:", platformFee);
+    
+    const finalTotalAmount = totalAmount + platformFee; 
+    console.log("Final Total Amount (after adding platform fee):", finalTotalAmount);
+    
     return {
-      hourlyRate,
-      platformFee,
-      totalAmount: finalTotalAmount.toFixed(0) // Return total amount as a string
+        differenceInHours,
+        hourlyRate,
+        platformFee: platformFee.toFixed(2), 
+        totalAmount: finalTotalAmount.toFixed(2) 
     };
   };
 
-  const { hourlyRate, platformFee, totalAmount } = calculateTotalAmount();
+  const { differenceInHours, hourlyRate, platformFee, totalAmount } = calculateTotalAmount();
 
   const handlePayment = () => {
-
     const options = {
       key: razorpayApiKey,
-      amount: totalAmount, // Use the total amount calculated
+      amount: (totalAmount * 100), // Use the total amount in paise
       currency: "INR",
       name: "UrbanDepot",
       description: "Parking Reservation Payment",
       handler: async function (response) {
-        // On successful payment, navigate to the ticket page
-        console.log('Payment Response:', response); // Log the payment response
-        setLoading(true); // Start loading when payment is done
-
-        // Call sendEmailToOwner to send the email
+        console.log('Payment Response:', response);
+        setLoading(true);
         await sendEmailToOwner(response.razorpay_payment_id);
-        setLoading(false); // Stop loading after email is sent
+        setLoading(false);
 
         navigate('/ticket', { 
           state: {
@@ -125,14 +113,14 @@ const RazorpayPayment = () => {
               contactNumber,
               vehicleType
             },
-            totalAmount: (totalAmount / 100).toFixed(2) // Total amount in INR
+            totalAmount: totalAmount // Total amount in INR
           }
         });
       },
       prefill: {
-        name: name, // Use name from reservation data
-        email: email, // Use email from reservation data
-        contact: contactNumber, // Use contact number from reservation data
+        name: name,
+        email: email,
+        contact: contactNumber,
       },
       theme: {
         color: "#F37254"
@@ -142,7 +130,7 @@ const RazorpayPayment = () => {
     const rzp1 = new window.Razorpay(options);
     rzp1.open();
   };
-  
+
   const sendEmailToOwner = async (paymentId) => {
     console.log("Entered emailing function");
     const templateParams = {
@@ -157,29 +145,28 @@ const RazorpayPayment = () => {
       checkoutTime: checkoutTime,
       vehicleType: vehicleType,
       paymentId: paymentId,
-      totalAmount: (totalAmount / 100).toFixed(2) // Total amount in INR
+      totalAmount: totalAmount // Total amount in INR
     };
   
     try {
       console.log("Sending email with parameters:", templateParams);
       const response = await emailjs.send(
-        'service_dxp7k7a', // Replace with your EmailJS service ID
-        'template_9jt8h3k', // Replace with your EmailJS template ID
+        'service_dxp7k7a',
+        'template_9jt8h3k',
         templateParams,
-        'WfUPqJH0cRzftZSDI' // Replace with your EmailJS user ID
+        'WfUPqJH0cRzftZSDI'
       );
       console.log('Email sent successfully!', response.status, response.text);
-      alert('NOTIFIED THE OWNER SUCCESSFULY!'); // Show success alert
+      alert('NOTIFIED THE OWNER SUCCESSFULLY!');
     } catch (error) {
       console.error('Error sending email:', error);
-      alert('Error sending email. Please try again.'); // Show error alert
+      alert('Error sending email. Please try again.');
     }
   };
-  
 
   return (
     <div className="rzp-container">
-      {loading ? ( // Conditionally render loading state
+      {loading ? (
         <Loading />
       ) : (
         <>
@@ -197,16 +184,24 @@ const RazorpayPayment = () => {
             <h4 className="rzp-bill-header">Billing Details:</h4>
             <div className="rzp-bill">
               <div className="rzp-bill-item">
-                <span>Hourly Rate:</span>
+                <span>Duration of Stay:</span>
+                <span>{differenceInHours.toFixed(2)} hours</span>
+              </div>
+              <div className="rzp-bill-item">
+                <span>Hourly Rate (for {vehicleType}):</span>
                 <span>₹{hourlyRate.toFixed(2)}</span>
               </div>
               <div className="rzp-bill-item">
+                <span>Subtotal:</span>
+                <span>₹{(differenceInHours * hourlyRate).toFixed(2)}</span>
+              </div>
+              <div className="rzp-bill-item">
                 <span>Platform Fee (5%):</span>
-                <span>₹{(platformFee / 100).toFixed(2)}</span>
+                <span>₹{platformFee}</span>
               </div>
               <div className="rzp-bill-item">
                 <span>Total Amount:</span>
-                <span>₹{(totalAmount / 100).toFixed(2)}</span>
+                <span>₹{totalAmount}</span>
               </div>
             </div>
           </div>
