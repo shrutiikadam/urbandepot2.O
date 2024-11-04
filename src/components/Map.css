@@ -168,7 +168,7 @@
     opacity: 1;     
 } 
 .map-popup {
-    width: 46vh;
+    width: 43vh;
     height: auto; /* Allow height to adjust based on content */
     max-height: 70vh; /* Limit maximum height */
     position: absolute;
