@@ -9,17 +9,11 @@ import "./AdminPage.css";
 import Forpay from "./ForPay";
 import Loading from "./Loading"; // Import the Loading component
 
-
 const AdminPage = () => {
   const [places, setPlaces] = useState([]);
   const [activeTab, setActiveTab] = useState("registered");
   const [activeSubTab, setActiveSubTab] = useState("verified");
-  const [bookings, setUserBookingsCount] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [user, setUser] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
 
   const auth = getAuth(); // Initialize Firebase Auth
 
@@ -82,18 +76,12 @@ const AdminPage = () => {
     // Fetch logged-in user's information
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        setUser({
-          name: currentUser.displayName || "No display name",
-          email: currentUser.email,
-          uid: currentUser.uid,
-        });
-      } else {
-        setUser(null); // Handle if user logs out
+        // You can handle user info here if needed
       }
     });
     return () => unsubscribe(); // Cleanup on component unmount
   }, [auth]);
-  
+
   const verifiedPlaces = places.filter((place) => place.verified);
   const nonVerifiedPlaces = places.filter((place) => !place.verified);
 
@@ -102,96 +90,84 @@ const AdminPage = () => {
       <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="main-content">
-        <main className="main-content">
-          {activeTab === "registered" && (
-            <div>
-              {/* Notification Bar for Registration Actions */}
-              <div className="notification-banner">
-                {activeSubTab === "verified" && (
-                  <p>Displaying all verified places</p>
-                )}
-                {activeSubTab === "nonVerified" && (
-                  <p>Displaying places pending verification</p>
-                )}
-              </div>
-
-              <div className="tabs">
-                <button
-                  className={`tab-button ${
-                    activeSubTab === "verified" ? "active" : ""
-                  }`}
-                  onClick={() => setActiveSubTab("verified")}
-                >
-                  Verified
-                </button>
-                <button
-                  className={`tab-button ${
-                    activeSubTab === "nonVerified" ? "active" : ""
-                  }`}
-                  onClick={() => setActiveSubTab("nonVerified")}
-                >
-                  Non-Verified
-                </button>
-              </div>
-              {loading ? (
-              <Loading /> 
-            ) : (
-                <div className="place-list">
-                  {activeSubTab === "verified" &&
-                    verifiedPlaces.map((place) => (
-                      <div key={place.id} className="place-card verified-card">
-                        <div className="place-info">
-                          <span>
-                            <b>{place.placeName || "Unknown Place"}</b>
-                          </span>
-                          <span> Address: {place.address}</span>
-                          <span> Charge: {place.charge}</span>
-                          <span>
-                            {" "}
-                            Availability: {place.availability.from} -{" "}
-                            {place.availability.to}
-                          </span>
-                          <span> Verified: Yes</span>
-                        </div>
-                        <FaTrash className="delete-icon" onClick={() => handleDeletePlace(place.id)} style={{ color: "red", cursor: "pointer" }} />
-
-                      </div>
-                    ))}
-
-                  {activeSubTab === "nonVerified" &&
-                    nonVerifiedPlaces.map((place) => (
-                      <div
-                        key={place.id}
-                        className="place-card non-verified-card"
-                      >
-                        <div className="place-info">
-                          <span>
-                            <b>{place.placeName || "Unknown Place"}</b>
-                          </span>
-                          <span> Address: {place.address}</span>
-                          <span> Charge: {place.charge}</span>
-                          <span>
-                            {" "}
-                            Availability: {place.availability.from} -{" "}
-                            {place.availability.to}
-                          </span>
-                          <span> Verified: No</span>
-                        </div>
-                        <button
-                          className="verify-button"
-                          onClick={() => handleVerifyPlace(place.id)}
-                        >
-                          Verify
-                        </button>
-                        <FaTrash className="delete-icon" onClick={() => handleDeletePlace(place.id)} style={{ color: "red", cursor: "pointer" }} />
-
-                      </div>
-                    ))}
-                </div>
+        {activeTab === "registered" && (
+          <div>
+            {/* Notification Bar for Registration Actions */}
+            <div className="notification-banner">
+              {activeSubTab === "verified" && (
+                <p>Displaying all verified places</p>
+              )}
+              {activeSubTab === "nonVerified" && (
+                <p>Displaying places pending verification</p>
               )}
             </div>
-          )}
-        </main>
+
+            <div className="tabs">
+              <button
+                className={`tab-button ${activeSubTab === "verified" ? "active" : ""}`}
+                onClick={() => setActiveSubTab("verified")}
+              >
+                Verified
+              </button>
+              <button
+                className={`tab-button ${activeSubTab === "nonVerified" ? "active" : ""}`}
+                onClick={() => setActiveSubTab("nonVerified")}
+              >
+                Non-Verified
+              </button>
+            </div>
+
+            {loading ? (
+              <Loading />
+            ) : (
+              <div className="place-list">
+                {activeSubTab === "verified" &&
+                  verifiedPlaces.map((place) => (
+                    <div key={place.id} className="place-card verified-card">
+                      <div className="place-info">
+                        <span>
+                          <b>{place.placeName || "Unknown Place"}</b>
+                        </span>
+                        <span> Address: {place.address}</span>
+                        <span> Charge: {place.charge}</span>
+                        <span>
+                          {" "} Availability: {place.availability.from} -{" "}
+                          {place.availability.to}
+                        </span>
+                        <span> Verified: Yes</span>
+                      </div>
+                      <FaTrash className="delete-icon" onClick={() => handleDeletePlace(place.id)} style={{ color: "red", cursor: "pointer" }} />
+                    </div>
+                  ))}
+
+                {activeSubTab === "nonVerified" &&
+                  nonVerifiedPlaces.map((place) => (
+                    <div key={place.id} className="place-card non-verified-card">
+                      <div className="place-info">
+                        <span>
+                          <b>{place.placeName || "Unknown Place"}</b>
+                        </span>
+                        <span> Address: {place.address}</span>
+                        <span> Charge: {place.charge}</span>
+                        <span>
+                          {" "} Availability: {place.availability.from} -{" "}
+                          {place.availability.to}
+                        </span>
+                        <span> Verified: No</span>
+                      </div>
+                      <button
+                        className="verify-button"
+                        onClick={() => handleVerifyPlace(place.id)}
+                      >
+                        Verify
+                      </button>
+                      <FaTrash className="delete-icon" onClick={() => handleDeletePlace(place.id)} style={{ color: "red", cursor: "pointer" }} />
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {activeTab === "payment" && (
           <div className="bookings-list">
@@ -199,8 +175,6 @@ const AdminPage = () => {
             <Forpay />
           </div>
         )}
-
-        {/* {activeTab === "profile" && <div>Profile Content</div>} */}
 
         {activeTab === "notifications" && (
           <div className="notifications-list">
@@ -213,4 +187,3 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
-

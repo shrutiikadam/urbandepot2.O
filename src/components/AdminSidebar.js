@@ -1,6 +1,6 @@
 import React from 'react';
 import './AdminSidebar.css';
-import { FaChartLine, FaList, FaClipboardList, FaUserCircle, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaChartLine, FaList, FaClipboardList, FaSignOutAlt } from 'react-icons/fa';
 import { auth } from "../firebaseConfig"; // Ensure the path is correct
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 

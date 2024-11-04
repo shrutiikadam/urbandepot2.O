@@ -1,10 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig'; // Adjust the path if necessary
 
 const Availability = ({ placeId }) => {
   const [availableTimes, setAvailableTimes] = useState([]);
   const [error, setError] = useState(null);
+
+  // Memoize the calculateAvailableSlots function
+  const calculateAvailableSlots = useCallback((availability, reservations) => {
+    // Split availability time string into start and end times
+    const [startTime, endTime] = availability.split(' - ').map(time => new Date(`1970-01-01T${time}:00`));
+
+    // Calculate reserved time slots
+    const reservedSlots = reservations.map(reservation => {
+      const checkin = new Date(`1970-01-01T${reservation.checkin}:00`);
+      const checkout = new Date(`1970-01-01T${reservation.checkout}:00`);
+      return { checkin, checkout };
+    });
+
+    const availableSlots = [];
+    let lastEndTime = startTime;
+
+    reservedSlots.forEach(slot => {
+      // If there is time before the current reservation
+      if (lastEndTime < slot.checkin) {
+        availableSlots.push(`${formatTime(lastEndTime)} - ${formatTime(slot.checkin)}`);
+      }
+      // Update the last end time
+      lastEndTime = slot.checkout > lastEndTime ? slot.checkout : lastEndTime;
+    });
+
+    // If there's time after the last reservation
+    if (lastEndTime < endTime) {
+      availableSlots.push(`${formatTime(lastEndTime)} - ${formatTime(endTime)}`);
+    }
+
+    return availableSlots;
+  }, []); // No dependencies, as it does not rely on props or state
 
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -40,39 +72,7 @@ const Availability = ({ placeId }) => {
     };
 
     fetchAvailability();
-  }, [placeId]);
-
-  // Function to calculate available time slots
-  const calculateAvailableSlots = (availability, reservations) => {
-    // Split availability time string into start and end times
-    const [startTime, endTime] = availability.split(' - ').map(time => new Date(`1970-01-01T${time}:00`));
-
-    // Calculate reserved time slots
-    const reservedSlots = reservations.map(reservation => {
-      const checkin = new Date(`1970-01-01T${reservation.checkin}:00`);
-      const checkout = new Date(`1970-01-01T${reservation.checkout}:00`);
-      return { checkin, checkout };
-    });
-
-    const availableSlots = [];
-    let lastEndTime = startTime;
-
-    reservedSlots.forEach(slot => {
-      // If there is time before the current reservation
-      if (lastEndTime < slot.checkin) {
-        availableSlots.push(`${formatTime(lastEndTime)} - ${formatTime(slot.checkin)}`);
-      }
-      // Update the last end time
-      lastEndTime = slot.checkout > lastEndTime ? slot.checkout : lastEndTime;
-    });
-
-    // If there's time after the last reservation
-    if (lastEndTime < endTime) {
-      availableSlots.push(`${formatTime(lastEndTime)} - ${formatTime(endTime)}`);
-    }
-
-    return availableSlots;
-  };
+  }, [placeId, calculateAvailableSlots]); // Include calculateAvailableSlots in the dependency array
 
   // Helper function to format time
   const formatTime = (date) => {
