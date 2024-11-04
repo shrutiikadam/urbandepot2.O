@@ -1,2 +1,3 @@
-# UrbanDepot
-Smart Parking System
+UrbanDepot is a smart parking solution designed to address parking challenges in urban areas, especially Mumbai. It operates as a marketplace where homeowners can rent out their unused parking spaces. We offer real-time parking availability, easy booking, and secure payments. Users can book parking spots in buildings, bungalows, extra spaces, and parking lots with a single click.
+
+Our  unique offering lies in the integration of residential and commercial spaces into one unified parking platform. Unlike traditional parking apps/websites, users can not only book parking in standard lots but also access private, unused spaces like residential buildings, bungalows, and apartments—creating a more diverse, flexible, and accessible parking network.
