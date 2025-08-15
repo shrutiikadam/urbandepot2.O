@@ -7,14 +7,15 @@ import html2canvas from 'html2canvas';
 import emailjs from 'emailjs-com';
 import { QRCodeCanvas } from 'qrcode.react'; // Update import
 
-const Ticket = ({ userEmail }) => {
+const Ticket = () => {
   const location = useLocation();
+  const userEmail = localStorage.getItem("userEmail");
   const { 
     address = 'N/A', 
     place,
     paymentId, 
     reservationData, 
-    totalAmount 
+    totalAmount
   } = location.state || {};
 
   // Define EmailJS variables
@@ -53,7 +54,7 @@ const Ticket = ({ userEmail }) => {
 
   const sendEmail = async () => {
     const templateParams = {
-      to_email: userEmail,
+      to_email: reservationData.email,
       address: address,
       place: place,
       name: reservationData.name,

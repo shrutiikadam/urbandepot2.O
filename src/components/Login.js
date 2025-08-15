@@ -1,6 +1,8 @@
-
 import React, { useState, useEffect } from "react";
-import { auth, googleProvider } from "../firebaseConfig";
+import {
+  auth,
+  googleProvider
+} from "../firebaseConfig";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -10,7 +12,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import styles from './Login.css';
+import './Login.css';
 import 'boxicons/css/boxicons.min.css';
 
 const Login = () => {
@@ -23,16 +25,13 @@ const Login = () => {
   const navigate = useNavigate();
 
   // Admin credentials
-  const adminEmail = "admin@gmail.com";  // Replace with the actual admin email
-  const adminPassword = "123";  // Replace with the actual admin password
+  const adminEmail = "admin@gmail.com";
+  const adminPassword = "123";
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUserEmail(user.email);
-      } else {
-        setCurrentUserEmail(null);
-      }
+      if (user) setCurrentUserEmail(user.email);
+      else setCurrentUserEmail(null);
     });
     return () => unsubscribe();
   }, []);
@@ -41,30 +40,37 @@ const Login = () => {
     e.preventDefault();
     if (email === adminEmail && password === adminPassword) {
       alert("Admin login successful!");
-      navigate("/adminpage");  // Navigate to the admin page
+      navigate("/adminpage");
       return;
     }
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      if (userCredential.user.emailVerified) {
-        alert("Login successful!");
-        navigate("/map");
-      } else {
-        alert("Please verify your email before logging in.");
-      }
-    } catch (error) {
-      alert(`Error: ${error.message}`);
-    }
-  };
 
-  const handleGoogleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      alert("Google login successful!");
+      if (!userCredential.user.emailVerified) {
+        alert("Please verify your email before logging in.");
+        return;
+      }
+
+      const token = await userCredential.user.getIdToken();
+      console.log("✅ ID Token:", token);
+
+      // Test protected route
+      const response = await fetch("http://localhost:5000/api/protected", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      console.log("✅ Backend Response:", data);
+
+      alert("Login successful!");
       navigate("/map");
+
     } catch (error) {
-      alert(`Google Login Error: ${error.message}`);
+      alert(`Login Error: ${error.message}`);
     }
   };
 
@@ -77,12 +83,11 @@ const Login = () => {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      await sendEmailVerification(user);
+      await sendEmailVerification(userCredential.user);
       alert("Signup successful! Please check your email for verification.");
       navigate("/login");
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      alert(`Signup Error: ${error.message}`);
     }
   };
 
@@ -97,17 +102,38 @@ const Login = () => {
     }
   };
 
-  const handleToggle = () => {
-    setIsSignUp(!isSignUp);
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const token = await result.user.getIdToken();
+      console.log("✅ Google Login Token:", token);
+
+      // Optional: send to backend
+      const response = await fetch("http://localhost:5000/api/protected", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      console.log("✅ Backend Google Login Response:", data);
+
+      alert("Google login successful!");
+      navigate("/map");
+
+    } catch (error) {
+      alert(`Google Login Error: ${error.message}`);
+    }
   };
 
   return (
-    <div className="login-page">
+    
       <div className={`form-container ${isSignUp ? "show-signup" : "show-login"}`}>
         <div className="col col-1">
-          <div className="image-layer">
-            <img src="car.png" className="car-bg" />
-          </div>
+          
+            <img src="car.png" className="car-bg" alt="Car" />
+          
           <p className="words">Few Seconds Away From Solving Parking Issue!</p>
         </div>
         <div className="col col-2">
@@ -120,41 +146,21 @@ const Login = () => {
             </button>
           </div>
 
+          {/* SIGN UP FORM */}
           <div className={`register-form ${isSignUp ? "active" : ""}`}>
             <div className="form-title"><span>SIGN UP</span></div>
             <form onSubmit={handleSignUp}>
               <div className="form-inputs">
                 <div className="input-box">
-                  <input
-                    className="input-field"
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
+                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   <i className="bx bx-envelope icon"></i>
                 </div>
                 <div className="input-box">
-                  <input
-                    className="input-field"
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                   <i className="bx bx-lock-alt icon"></i>
                 </div>
                 <div className="input-box">
-                  <input
-                    className="input-field"
-                    type="password"
-                    placeholder="Confirm Password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
+                  <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
                   <i className="bx bx-lock-alt icon"></i>
                 </div>
                 <button className="input-submit" type="submit">
@@ -169,30 +175,17 @@ const Login = () => {
             </button>
           </div>
 
+          {/* LOGIN FORM */}
           <div className={`login-form ${!isSignUp ? "active" : ""}`}>
             <div className="form-title"><span>LOGIN</span></div>
             <form onSubmit={handleLogin}>
               <div className="form-inputs">
                 <div className="input-box">
-                  <input
-                    className="input-field"
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
+                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   <i className="bx bx-envelope icon"></i>
                 </div>
                 <div className="input-box">
-                  <input
-                    className="input-field"
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                   <i className="bx bx-lock-alt icon"></i>
                 </div>
                 <button className="input-submit" type="submit">
@@ -208,9 +201,8 @@ const Login = () => {
           </div>
         </div>
       </div>
-    </div>
+    
   );
 };
 
 export default Login;
-

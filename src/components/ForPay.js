@@ -5,8 +5,6 @@ import { useLocation } from 'react-router-dom';
 import './ForPay.css'; // Assuming your CSS file is named Forpay.css
 import Loading from './Loading'; // Import the Loading component
 
-
-
 const Forpay = () => {
     const [datewiseReservations, setDatewiseReservations] = useState({});
     const location = useLocation();
@@ -16,56 +14,17 @@ const Forpay = () => {
     
     // Function to fetch all reservations across all places
     const fetchAllReservations = async () => {
-        try {
-            const placesSnapshot = await getDocs(collection(db, 'places'));
-            let reservationsList = [];
+  try {
+    const response = await fetch("http://localhost:5000/api/reservations-grouped");
+    const data = await response.json();
+    setDatewiseReservations(data);
+  } catch (error) {
+    console.error("Error fetching reservations:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
-            // Loop through each place
-            for (const placeDoc of placesSnapshot.docs) {
-                const placeId = placeDoc.id;
-
-                // Get the reservations subcollection for each place
-                const reservationsSnapshot = await getDocs(collection(db, 'places', placeId, 'reservations'));
-
-                // Add each reservation to the list, including the placeId
-                reservationsSnapshot.forEach((reservationDoc) => {
-                    const reservationData = reservationDoc.data();
-                    const createdAt = reservationData.createdAt;
-
-                    // Convert createdAt timestamp to date format
-                    const reservationDate = new Date(createdAt).toLocaleDateString();
-
-                    // Add formatted reservation with place ID and reservation ID
-                    reservationsList.push({
-                        placeId,
-                        reservationId: reservationDoc.id,
-                        reservationDate,
-                        ...reservationData,
-                    });
-                });
-            }
-
-            // Group reservations by date and calculate total for each date
-            const groupedReservations = reservationsList.reduce((acc, reservation) => {
-                const { reservationDate, platform_fee } = reservation;
-                if (!acc[reservationDate]) {
-                    acc[reservationDate] = {
-                        reservations: [],
-                        total: 0,
-                    };
-                }
-                acc[reservationDate].reservations.push(reservation);
-                acc[reservationDate].total += Number(platform_fee) || 0; // Ensure platform_fee is treated as a number
-                return acc;
-            }, {});
-
-            setDatewiseReservations(groupedReservations); // Set the grouped reservations in state
-        } catch (error) {
-            console.error("Error fetching all reservations:", error);
-        } finally {
-            setLoading(false); // Set loading to false when fetching is done
-        }
-    };
 
     useEffect(() => {
         fetchAllReservations(); // Call fetch function on component mount

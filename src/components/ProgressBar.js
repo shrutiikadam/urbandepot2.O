@@ -13,16 +13,23 @@ const ProgressBar = ({ currentStep, totalSteps, onNext, onPrev }) => {
           className="progress"
           style={{ width: `${progressPercentage}%` }}
         ></div>
-        
-        {/* Moving car icon */}
-        <div
-          className="car-icon"
-          style={{ left: `calc(${progressPercentage}% - 10px)` }}
-        >
-          🚗
-        </div>
-      </div>
+
+        {/* Moving car GIF */}
+        <img
+          src="car-video.gif"
+          alt="Moving car"
+          className="car-gif"
+          style={{ left: `calc(${progressPercentage}% - 45px)` }} // Adjust position as needed
+        />
       
+
+        {/* Parking spot at the end of the road */}
+        <div class="parking-spot-container">
+        <div class="parking-sign">P</div>
+        <div className="parking-spot"></div>
+        </div>
+            </div>
+
       {/* Navigation buttons */}
       <div className="button-container">
         <button className="prev-button" onClick={onPrev} disabled={currentStep === 1}>

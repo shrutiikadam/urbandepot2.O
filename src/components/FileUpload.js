@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./FileUpload.css";
 
+const uploadIcon = './drag-and-drop.png';
 const FileUpload = ({ onFileChange, label, required, id }) => {
   const [files, setFiles] = useState([]);
 
@@ -20,14 +21,13 @@ const FileUpload = ({ onFileChange, label, required, id }) => {
 
   const handleFileChange = (file, id) => {
     if (file) {
-        console.log(`File received in ${id}:`, file);
-        setFiles([file]);
-        onFileChange(file, id); // Make sure to pass the file and id to the parent function
+      console.log(`File received in ${id}:`, file);
+      setFiles([file]);
+      onFileChange(file, id);
     } else {
-        console.error("No file was passed to handleFileChange.");
+      console.error("No file was passed to handleFileChange.");
     }
-};
-
+  };
 
   const renderFilePreview = (file) => {
     if (file.type.startsWith("image/")) {
@@ -55,8 +55,11 @@ const FileUpload = ({ onFileChange, label, required, id }) => {
         onDragOver={handleDragOver}
         onClick={() => document.getElementById(`fileInput_${id}`).click()}
       >
-        {files.length === 0 ? (
-          "Drag and drop files here or click to upload"
+       {files.length === 0 ? (
+          <div className="upload-placeholder">
+            <img src={uploadIcon} alt="Upload" className="upload-icon" /> {/* Use the PNG icon */}
+            <span className="upload-text">Drag and drop here</span>
+          </div>
         ) : (
           <div className="preview-section">
             {files.map((file, index) => (

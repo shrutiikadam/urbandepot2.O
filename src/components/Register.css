@@ -1,28 +1,53 @@
 .form123 {
     overflow: hidden;
     height: 200vh;
-    background:rgb(243, 237, 237);
+    background:rgb(255, 255, 255);
     margin: 0;
     padding: 0;
     margin-top: 0%;
+    /* display: flex; */
+    flex-direction: column;
+    /* align-items: flex-start; */
 }
-
+.text123{
+    max-width:600px;
+    margin-left: 100px;
+    margin-top: 150px;
+}
+.text123 h1 {
+    font-family: 'Poppins', sans-serif;
+ }
+ .text123 .head123{
+    font-size: 35px;
+    color: #000000;
+ }
+ .text123 .stepNo{
+    color:black;
+    font-size:19px;
+ }
+ .text123 .explain{
+    color:black;
+    font-size:17px;
+ }
 .register-place-container {
     font-family: "Montserrat", sans-serif;
     position: relative;
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 30px;
-    border: 2px solid #ccc;
-    border-radius: 50px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    /* margin: 0px auto; */
+    padding: 10px;
+    border: 5px solid #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.163);
     background-color: #ffffff;
-    margin-top: 1.5%;
+    margin-top: -225px;
+    /* margin-right:100px; */
+    /* flex: 1; */
+    margin-left: 800px;
 }
 
 h2 {
-    text-align: center;
-    color: #333;
+    text-align: left;
+    color: #000000;
 }
 /* Shifting map in step 4 slightly to the left */
 .step .map {
@@ -35,123 +60,9 @@ h2 {
     border-radius: 20px;
     background-color: #1ca94b00;
     margin-bottom: 20px;
-}
-
-.timeline {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    padding: 20px 0;
-    width: 100%;
-}
-
-input[type="text"]::placeholder,
-input[type="email"]::placeholder,
-input[type="password"]::placeholder,
-textarea::placeholder {
-    color: #aaa; /* Light grey color for placeholder text */
-}
-
-
-.timeline-step {
     position: relative;
 }
 
-@keyframes animate {
-    100% {
-        transform: scaleX(1);
-    }
-}
-
-.timeline-step .check {
-    position: absolute;
-    left: 50%;
-    top: 70%;
-    font-size: 15px;
-    transform: translate(-50%, -50%);
-}
-
-.timeline-step {
-    position: relative;
-    flex: 1;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.timeline-step p {
-    margin-top: 5px;
-    font-size: 14px;
-    font-weight: 600;
-    color: rgb(55, 49, 49);
-}
-
-.timeline-circle {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #a4a4a4;
-    border-radius: 50%;
-    background-color: #fff;
-    line-height: 30px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-    transition: background-color 0.5s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.timeline-circle:hover {
-    border: 2px solid #ffffff;
-    background-color: #777;
-    color: white;
-}
-
-.timeline-circle.active {
-    background-color: #610072;
-    border-color: #610072;
-    color: white;
-}
-
-.completed-check {
-    background-color: green;
-    border: 2px solid green;
-}
-
-.completed-check .fas.fa-check {
-    color: white;
-    font-size: 14px;
-}
-
-.active {
-
-    color: rgb(0, 0, 0);
-}
-
-
-.timeline-line {
-    height: 5px;
-    width: 1500px;
-    background-color: #ffffff;
-    margin: 0 auto;
-    margin-bottom: 36px;
-    margin-right: -13px;
-    margin-left: -13px;
-}
-
-.filled {
-    background-color: green;
-    transform: scaleX(0);
-    transform-origin: left;
-    animation: animate 0.7s linear forwards;
-}
-
-.completed {
-    color: white;
-}
 
 button {
     background-color: black; /* Set button background to black */
@@ -163,7 +74,6 @@ button {
     margin: 5px;
     font-size: 16px;
     display: inline-block;
-    /* box-shadow: 0 0 20px #eee; */
     transition: 0.5s;
 }
 
@@ -176,7 +86,7 @@ button:hover {
 .button-container {
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .button-container button {
@@ -191,31 +101,233 @@ button:hover {
 .error-message {
     color: red;
     text-align: center;
+    margin-top:-20px;
 }
 
-/* Improved input styling */
-input[type="text"], input[type="email"], input[type="password"], textarea, select {
-    width: 100%;
-    padding: 12px 15px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-    font-family: "Montserrat", sans-serif;
-    font-size: 16px;
-    color: #333;
-    background-color: #f9f9f9;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
-    border-color: #610072;
-    box-shadow: 0 0 5px rgba(97, 0, 114, 0.3);
-    outline: none;
-}
 
 textarea {
     resize: vertical;
     min-height: 100px;
+}
+/* .floating-label {
+    transition: 0.2s ease all;
+    border: none;
+    color: #000000;
+  } */
+  input{
+    border:none;
+  }
+  input:focus {
+    outline: none;  /* Removes the default focus outline */
+    border: none;   /* Removes the border */
+  }
+  input::placeholder {
+    color: #aaa; /* Adjust the color as needed */
+    opacity: 1; /* Ensures the placeholder is fully visible */
+}
+  .step input:focus + .floating-label,
+  .step input:not(:placeholder-shown) + .floating-label {
+    top: -10px;
+    left: 12px;
+    font-size: 10px;
+    color: #333;
+  }
+  
+.register-s1-name,
+.register-s1-email,.register-s2-placename,.register-s2-placeaddress,
+.register-s4-noOfPark,.register-s5-loc{
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+ .flabel{
+    max-width:00px;
+    white-space: nowrap;
+    
+ }
+
+
+.register-s1-name:focus-within,
+.register-s1-email:focus-within{
+  outline: none;
+  border-color: #000000; 
+  box-shadow: 0 0 4px rgba(200, 200, 200, 0.734); 
+} 
+.register-s1-name,
+.register-s1-email,
+.register-s2-placename,
+.register-s2-placeaddress,
+.register-s4-noOfPark,
+.register-s5-loc {
+    display: flex;
+    flex-direction: column; /* Stacks the label and input vertically */
+    margin-bottom: 15px; /* Adds space between fields */
+}
+.register-s1-name input,
+.register-s1-email input,
+.register-s2-placename input,
+.register-s2-placeaddress input,
+.register-s4-noOfPark input,
+.register-s5-loc input {
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+.register-s1-name:focus-within,
+.register-s1-email:focus-within,
+.register-s2-placename:focus-within,
+.register-s2-placeaddress:focus-within,
+.register-s4-noOfPark:focus-within,
+.register-s5-loc:focus-within {
+    border: 1px solid black;
+    box-shadow: 0 0 3px black; /* Adds subtle shadow */
+    background-color: #ffffff; /* Slight background change on focus */
+}
+/* .date123,.time123{
+    display: flex;
+    flex-direction: column; 
+}
+.date123, .time123 {
+    display: flex;
+    gap: 10px; 
+    flex-direction: column;
+  }
+  
+.register-s4-date, .register-s4-time {
+    flex: 1; 
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    width:250px;
+  } */
+/* .register-s3-u {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+    max-width: 200px;
+    min-height: 150px;
+    text-align: center;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    
+    
+} */
+/* .register-s4-time,.register-s4-date, */
+.date-time-container {
+    display: flex; /* Use Flexbox to arrange the two containers side by side */
+    justify-content: space-between; /* Space between the two containers */
+    margin: 20px 0; /* Add some top and bottom margin */
+  }
+  
+.time123,.date123{
+    display: flex; /* Stack the date and time inputs vertically */
+    flex-direction: column; /* Stack them in a column */
+  }
+  
+  .register-s4-date,
+  .register-s4-time {
+    margin-bottom: 10px; /* Space between date and time inputs */
+  }
+  
+  label {
+    margin-bottom: 5px; /* Space between label and input */
+  }
+  .register-s4-date,
+  .register-s4-time {
+      display: flex;
+      flex-direction: column; /* Stack label and input vertically */
+      margin-bottom: 15px; /* Space between fields */
+  }
+  
+  .register-s4-date label,
+  .register-s4-time label {
+      font-size: 1rem; /* Match font size with other labels */
+      color: #333; /* Match color with other labels */
+      margin-bottom: 5px; /* Space between label and input */
+  }
+  
+  .register-s4-date input,
+  .register-s4-time input {
+      width: 100%; /* Make the input take full width */
+      padding: 0.75rem; /* Padding for the input */
+      font-size: 1rem; /* Font size for input text */
+      color: #333; /* Input text color */
+      border: 1px solid #ddd; /* Input border */
+      border-radius: 6px; /* Rounded corners */
+      outline: none; /* Remove outline */
+      transition: border-color 0.3s ease; /* Smooth transition for border color */
+  }
+  
+  /* Focus styles for inputs */
+  .register-s4-date input:focus,
+  .register-s4-time input:focus {
+      border-color: black; /* Change border color on focus */
+      box-shadow: 0 0 3px black; /* Adds subtle shadow */
+      background-color: #ffffff; /* Background change on focus */
+  }
+  
+  /* Placeholder styles */
+  .register-s4-date input::placeholder,
+  .register-s4-time input::placeholder {
+      color: #aaa; /* Placeholder text color */
+      opacity: 1; /* Ensure placeholder is fully visible */
+  }
+  /* Register.css */
+  .mapContainer {
+    height: 400px; /* Set a default height */
+    max-height: 300px; /* Set the maximum height for the scroll bar */
+    width: 100%; /* Full width */
+    margin: 20px 0; /* Margin for spacing */
+    overflow-y: auto; /* Enable vertical scroll */
+}
+
+  /* Wrapper container for form elements */
+.form-container {
+    position: relative; /* Position relative to control z-index */
+    z-index: -1; /* Pushes the form to the back */
+    
+}
+
+.form123 {
+    position: relative; /* Ensure this doesn't interfere with z-indexing */
+    height: 140vh;
+    background: rgb(255, 255, 255);
+    margin: 0;
+    padding: 0;
+    margin-top: 0%;
+    flex-direction: column;
+    z-index: 10; /* Keep form elements in the background */
+}
+
+.register-place-container, .step, .button-container, .error-message, .date-time-container, .mapContainer {
+     /* Also push individual elements to background if needed */
+}
+.mapContainer {
+    height: 400px; /* Set default height */
+    max-height: 300px; /* Maximum height to control scroll area */
+    width: 100%; /* Full width */
+    margin: 20px 0; /* Margin for spacing */
+    overflow-y: auto; /* Enable vertical scroll */
+    z-index: 1; /* Set a positive z-index to ensure scroll bar visibility */
+}
+.mapContainer {
+    height: 400px;
+    max-height: 300px;
+    width: 100%;
+    margin: 20px 0;
+    overflow-y: auto;
+    z-index: 1;
+    border: 1px solid red; /* Temporary border for visualization */
 }

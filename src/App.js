@@ -23,6 +23,7 @@ import CardSlider from './components/CardSlider';
 import FAQ from './components/Faq';
 import Contact from './components/Contact';
 import ProgressBar from './components/ProgressBar';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   const [userEmail, setUserEmail] = useState("");
@@ -51,18 +52,18 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/payment" element={<RazorpayPayment />} />
-        <Route path="/register-place" element={<RegisterPlace />} />
-        <Route path="/reservation" element={<ReservationForm />} />
+        <Route path="/payment" element={<ProtectedRoute><RazorpayPayment /></ProtectedRoute>} />
+        <Route path="/register-place" element={<ProtectedRoute><RegisterPlace /></ProtectedRoute>} />
+        <Route path="/reservation" element={<ProtectedRoute><ReservationForm /></ProtectedRoute>} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/demo" element={<Availability placeId="zGK4ChrgmCIEpU88d4dz" />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/ticket" element={<Ticket userEmail={userEmail} />} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /> </ProtectedRoute>} />
+        <Route path="/ticket" element={<Ticket/>} />
         <Route path="/fetch" element={<FetchPlaceName />} />
-        <Route path='/map' element={<Map />} />
-        <Route path='/adminpage' element={<AdminPage />} />
-        <Route path='/adminside' element={<AdminSidebar />} />
+        <Route path='/map' element={<ProtectedRoute><Map /></ProtectedRoute>} />
+        <Route path='/adminpage' element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+        <Route path='/adminside' element={<ProtectedRoute><AdminSidebar /></ProtectedRoute>} />
         <Route path='/home' element={<Home />} />
         <Route path='/transition' element={<TransitionSection />} />
         <Route path='/card' element={<CardSlider />} />

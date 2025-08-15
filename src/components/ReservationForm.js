@@ -215,115 +215,61 @@ const ReservationForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // Clear previous error messages
-    setErrorMessage('');
-    setLicenseValidationMessage('');
-    setIsLoading(true);
+  // Clear previous error messages
+  setErrorMessage('');
+  setLicenseValidationMessage('');
+  setIsLoading(true);
 
+  // Validate the license name against the user's name
+  if (!validateLicense()) {
+    setLicenseValidationMessage('The name on the license does not match the provided name. Please upload a valid license.');
+    setIsLoading(false);
+    return;
+  }
 
-    // Calculate the start and end times for the reservation
-    const requestedCheckin = new Date(`${formData.checkinDate}T${formData.checkinTime}:00`);
-    const requestedCheckout = new Date(`${formData.checkoutDate}T${formData.checkoutTime}:00`);
+  try {
+    const formDataToSend = new FormData();
 
-    // Validate the license name against the user's name
-    if (!validateLicense()) {
-      setLicenseValidationMessage('The name on the license does not match the provided name. Please upload a valid license.');
-      setIsLoading(false); // Reset loading state
+    // Append files
+    formDataToSend.append('licensePhoto', formData.licensePhoto);
+    formDataToSend.append('platePhoto', formData.platePhoto);
 
+    // Append the rest of the data as a JSON string
+    const data = {
+      ...formData,
+    };
+    formDataToSend.append('data', JSON.stringify(data));
+
+    const response = await fetch('http://localhost:5000/api/reserve', {
+      method: 'POST',
+      body: formDataToSend,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      setErrorMessage(result.error || 'Reservation failed');
       return;
     }
 
-  // Set total amount based on vehicle type
-// Set total amount based on vehicle type
-let baseAmount = 0;
-if (formData.vehicleType.toLowerCase() === 'car') {
-  baseAmount = 30;
-} else if (formData.vehicleType.toLowerCase() === 'bike') {
-  baseAmount = 20;
-} else if (formData.vehicleType.toLowerCase() === 'scooter') {
-  baseAmount = 20;
-} else if (formData.vehicleType.toLowerCase() === 'bicycle') {
-  baseAmount = 10;
-}
+    // Navigate to payment page with reservation data
+    navigate('/payment', {
+      state: {
+        address: formData.address,
+        place: formData.place,
+        reservationData: result.reservationData,
+      },
+    });
+  } catch (error) {
+    console.error('Error submitting reservation:', error);
+    setErrorMessage('An error occurred while submitting your reservation. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  // Calculate platform fee (5% of base amount)
-  const platformFee = (baseAmount * 0.05).toFixed(2);
-  const totalAmount = (baseAmount + parseFloat(platformFee)).toFixed(2); // Include platform fee in total
-
-    try {
-      // Check for existing reservations that conflict with the requested times
-      const reservationsRef = collection(db, 'places', formData.place, 'reservations');
-      const snapshot = await getDocs(reservationsRef);
-      
-      let conflict = false;
-
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const existingCheckin = new Date(data.checkin);
-        const existingCheckout = new Date(data.checkout);
-
-        // Check for overlap
-        if (
-          (requestedCheckin >= existingCheckin && requestedCheckin < existingCheckout) || // New check-in is during existing reservation
-          (requestedCheckout > existingCheckin && requestedCheckout <= existingCheckout) || // New check-out is during existing reservation
-          (requestedCheckin <= existingCheckin && requestedCheckout >= existingCheckout) // New reservation fully covers existing
-        ) {
-          conflict = true;
-        }
-      });
-
-      if (conflict) {
-        setErrorMessage('This time slot is already booked. Please choose a different time.');
-        setIsLoading(false); // Reset loading state
-
-        return; // Exit early if there’s a conflict
-      }
-
-      // Prepare to upload files to Firebase Storage
-      const licensePhotoRef = ref(storage, `licenses/${formData.licensePlate}-${Date.now()}.jpg`);
-      const platePhotoRef = ref(storage, `plates/${formData.licensePlate}-${Date.now()}.jpg`);
-
-      // Upload the files
-      const licenseUploadTask = uploadBytes(licensePhotoRef, formData.licensePhoto);
-      const plateUploadTask = uploadBytes(platePhotoRef, formData.platePhoto);
-
-      // Wait for both uploads to complete
-      const [licenseSnapshot, plateSnapshot] = await Promise.all([licenseUploadTask, plateUploadTask]);
-
-      // Get download URLs
-      const licensePhotoURL = await getDownloadURL(licenseSnapshot.ref);
-      const platePhotoURL = await getDownloadURL(plateSnapshot.ref);
-
-      // Save reservation data to Firestore
-       // Prepare reservation data
-    const reservationData = {
-      ...formData,
-      licensePhoto: licensePhotoURL,
-      platePhoto: platePhotoURL,
-      checkin: `${formData.checkinDate} ${formData.checkinTime}`,
-      checkout: `${formData.checkoutDate} ${formData.checkoutTime}`,
-      total_amount: totalAmount,
-      platform_fee: platformFee,
-    };
-
-      const licensePlateId = `${formData.licensePlate}-${Date.now()}`;
-
-    // Save reservation details to Firestore
-    await setDoc(doc(db, 'places', formData.place, 'reservations', licensePlateId), reservationData);
-    await setDoc(doc(db, 'users', formData.email, 'bookings', licensePlateId), reservationData);
-
-    console.log("Reservation successfully saved!");
-      navigate('/payment', { state: { address: formData.address, place: formData.place, reservationData } });
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setErrorMessage('An error occurred while submitting your reservation. Please try again.');
-    }finally {
-      setIsLoading(false); // Ensure loading state is reset
-    }
-    
-  };
 
   if (isLoading) {
     return <Loading />; // Show loading component

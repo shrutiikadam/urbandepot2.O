@@ -1,13 +1,10 @@
-import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from "react";
-import { FaTrash } from 'react-icons/fa'; // Import the trash icon
+import { FaTrash } from 'react-icons/fa';
 
-import db from "../firebaseConfig";
 import AdminSidebar from "./AdminSidebar";
 import "./AdminPage.css";
 import Forpay from "./ForPay";
-import Loading from "./Loading"; // Import the Loading component
+import Loading from "./Loading";
 
 const AdminPage = () => {
   const [places, setPlaces] = useState([]);
@@ -15,40 +12,34 @@ const AdminPage = () => {
   const [activeSubTab, setActiveSubTab] = useState("verified");
   const [loading, setLoading] = useState(true);
 
-  const auth = getAuth(); // Initialize Firebase Auth
-
-  // Fetch all registered places
+  // Fetch places from backend
   const fetchPlaces = async () => {
     setLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, "places"));
-      const fetchedPlaces = [];
-
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        fetchedPlaces.push({
-          id: doc.id,
-          ...data,
-        });
-      });
-
-      setPlaces(fetchedPlaces);
+      const response = await fetch("http://localhost:5000/api/places");
+      const data = await response.json();
+      setPlaces(data);
     } catch (error) {
       console.error("Error fetching places:", error);
     } finally {
-      setLoading(false); // Stop loading state
+      setLoading(false);
     }
   };
 
   const handleVerifyPlace = async (placeId) => {
     try {
-      const placeRef = doc(db, "places", placeId);
-      await updateDoc(placeRef, { verified: true });
-      setPlaces((prevPlaces) =>
-        prevPlaces.map((place) =>
-          place.id === placeId ? { ...place, verified: true } : place
-        )
-      );
+      const response = await fetch(`http://localhost:5000/api/verify/${placeId}`, {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        // Refetch data or update locally
+        setPlaces(prev =>
+          prev.map(p => (p.id === placeId ? { ...p, verified: true } : p))
+        );
+      } else {
+        console.error("Failed to verify place");
+      }
     } catch (error) {
       console.error("Error verifying place:", error);
     }
@@ -57,11 +48,16 @@ const AdminPage = () => {
   const handleDeletePlace = async (placeId) => {
     if (window.confirm("Are you sure you want to delete this place?")) {
       try {
-        // Delete from Firestore
-        await deleteDoc(doc(db, "places", placeId));
-        // Update state to remove the deleted place
-        setPlaces((prevPlaces) => prevPlaces.filter(place => place.id !== placeId));
-        alert("Place deleted successfully"); // Optional: Add toast notification
+        const response = await fetch(`http://localhost:5000/api/places/${placeId}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          setPlaces((prev) => prev.filter((p) => p.id !== placeId));
+          alert("Place deleted successfully");
+        } else {
+          console.error("Failed to delete place");
+        }
       } catch (error) {
         console.error("Error deleting place:", error);
       }
@@ -71,16 +67,6 @@ const AdminPage = () => {
   useEffect(() => {
     fetchPlaces();
   }, []);
-
-  useEffect(() => {
-    // Fetch logged-in user's information
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        // You can handle user info here if needed
-      }
-    });
-    return () => unsubscribe(); // Cleanup on component unmount
-  }, [auth]);
 
   const verifiedPlaces = places.filter((place) => place.verified);
   const nonVerifiedPlaces = places.filter((place) => !place.verified);
@@ -92,14 +78,9 @@ const AdminPage = () => {
       <main className="main-content">
         {activeTab === "registered" && (
           <div>
-            {/* Notification Bar for Registration Actions */}
             <div className="notification-banner">
-              {activeSubTab === "verified" && (
-                <p>Displaying all verified places</p>
-              )}
-              {activeSubTab === "nonVerified" && (
-                <p>Displaying places pending verification</p>
-              )}
+              {activeSubTab === "verified" && <p>Displaying all verified places</p>}
+              {activeSubTab === "nonVerified" && <p>Displaying places pending verification</p>}
             </div>
 
             <div className="tabs">
@@ -125,18 +106,17 @@ const AdminPage = () => {
                   verifiedPlaces.map((place) => (
                     <div key={place.id} className="place-card verified-card">
                       <div className="place-info">
-                        <span>
-                          <b>{place.placeName || "Unknown Place"}</b>
-                        </span>
+                        <span><b>{place.placeName || "Unknown Place"}</b></span>
                         <span> Address: {place.address}</span>
                         <span> Charge: {place.charge}</span>
-                        <span>
-                          {" "} Availability: {place.availability.from} -{" "}
-                          {place.availability.to}
-                        </span>
+                        <span> Availability: {place.availability?.from} - {place.availability?.to}</span>
                         <span> Verified: Yes</span>
                       </div>
-                      <FaTrash className="delete-icon" onClick={() => handleDeletePlace(place.id)} style={{ color: "red", cursor: "pointer" }} />
+                      <FaTrash
+                        className="delete-icon"
+                        onClick={() => handleDeletePlace(place.id)}
+                        style={{ color: "red", cursor: "pointer" }}
+                      />
                     </div>
                   ))}
 
@@ -144,15 +124,10 @@ const AdminPage = () => {
                   nonVerifiedPlaces.map((place) => (
                     <div key={place.id} className="place-card non-verified-card">
                       <div className="place-info">
-                        <span>
-                          <b>{place.placeName || "Unknown Place"}</b>
-                        </span>
+                        <span><b>{place.placeName || "Unknown Place"}</b></span>
                         <span> Address: {place.address}</span>
                         <span> Charge: {place.charge}</span>
-                        <span>
-                          {" "} Availability: {place.availability.from} -{" "}
-                          {place.availability.to}
-                        </span>
+                        <span> Availability: {place.availability?.from} - {place.availability?.to}</span>
                         <span> Verified: No</span>
                       </div>
                       <button
@@ -161,7 +136,11 @@ const AdminPage = () => {
                       >
                         Verify
                       </button>
-                      <FaTrash className="delete-icon" onClick={() => handleDeletePlace(place.id)} style={{ color: "red", cursor: "pointer" }} />
+                      <FaTrash
+                        className="delete-icon"
+                        onClick={() => handleDeletePlace(place.id)}
+                        style={{ color: "red", cursor: "pointer" }}
+                      />
                     </div>
                   ))}
               </div>

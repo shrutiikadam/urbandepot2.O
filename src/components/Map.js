@@ -2,15 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import './Map.css';
 import FetchLatLng from './FetchLatLng';
 import { Navigate } from "react-router-dom"; // Import Navigate from react-router-dom
-
-
 const mapsApiKey = process.env.REACT_APP_MAPS_API_KEY;
-
 const Map = () => {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false); // New state for login status
-
-
     const [places, setPlaces] = useState([]);
     const mapRef = useRef(null);
     const originalCenter = { lat: 19.0760, lng: 72.8777 }; // Original center
@@ -25,16 +20,12 @@ const Map = () => {
     const [directionsSteps, setDirectionsSteps] = useState([]); 
     const [loading, setLoading] = useState(true); // Loading state
 
-
     const [defaultFromDate, setDefaultFromDate] = useState('');
     const [defaultToDate, setDefaultToDate] = useState('');
     const [defaultFromTime, setDefaultFromTime] = useState('');
     const [defaultToTime, setDefaultToTime] = useState('');
 
-  const autocompleteRef = useRef(null);
-
-
-  
+  const autocompleteRef = useRef(null); 
     useEffect(() => {
         // Set default date and time values
         const today = new Date();
@@ -48,8 +39,6 @@ const Map = () => {
         setDefaultFromTime(currentTime);
         setDefaultToTime(oneHourLaterTime);
     }, []);
-
-
 
     const addMarkersForPlaces = (places) => {
         if (!mapInstance) return; // Ensure map is initialized
@@ -89,7 +78,6 @@ const Map = () => {
         });
         };
 
-
     const onFetchPlaces = (newPlaces) => {
         console.log("Fetched places:", newPlaces);
         setPlaces(newPlaces);
@@ -109,8 +97,6 @@ const Map = () => {
                 center: originalCenter,
                 zoom: originalZoom,
             });
-
-
 
             setMapInstance(map);
             setLoading(false); // Map loading finished
@@ -161,9 +147,6 @@ const Map = () => {
         loadScript(`https://maps.googleapis.com/maps/api/js?key=${mapsApiKey}&callback=initMap&libraries=places`);
     }, []);
 
-
-    
-
     useEffect(() => {
         if (mapInstance && places.length > 0) {
             addMarkersForPlaces(places); // Highlighted change
@@ -193,7 +176,6 @@ const Map = () => {
             setSearchMarkers(prevMarkers => [...prevMarkers, marker]);
         });
     };
-
 
     const searchNearbyPlaces = () => {
         const searchInput = document.getElementById("pac-input").value;
@@ -305,7 +287,6 @@ const Map = () => {
             mapInstance.setZoom(13); // Optional: Adjust zoom level based on proximity
         }
     };
-    
 
      const getDirections = () => {
     if (!directionsRenderer || !userMarker || !selectedPlace) {
@@ -534,7 +515,6 @@ const Map = () => {
 }}>
     Close
 </button>
-
 
                 <h4>Directions:</h4>
                 <ul id="direction-list">{directionsSteps}</ul>

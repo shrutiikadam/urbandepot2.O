@@ -85,51 +85,72 @@ const RazorpayPayment = () => {
 
   const { differenceInHours, hourlyRate, platformFee, totalAmount } = calculateTotalAmount();
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
+  setLoading(true);
+
+  try {
+    const orderRes = await fetch('http://localhost:5000/api/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: totalAmount })
+    });
+
+    const order = await orderRes.json();
+    
     const options = {
       key: razorpayApiKey,
-      amount: (totalAmount * 100), // Use the total amount in paise
-      currency: "INR",
+      amount: order.amount,
+      currency: order.currency,
       name: "UrbanDepot",
       description: "Parking Reservation Payment",
+      order_id: order.id,
       handler: async function (response) {
-        console.log('Payment Response:', response);
-        setLoading(true);
-        await sendEmailToOwner(response.razorpay_payment_id);
-        setLoading(false);
-
-        navigate('/ticket', { 
-          state: {
-            paymentId: response.razorpay_payment_id,
-            address,
-            place,
-            reservationData: {
-              checkinDate,
-              checkoutDate,
-              checkinTime,
-              checkoutTime,
-              name,
-              email,
-              contactNumber,
-              vehicleType
-            },
-            totalAmount: totalAmount // Total amount in INR
-          }
+        // Verify the payment
+        const verifyRes = await fetch('http://localhost:5000/api/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(response)
         });
+
+        const verifyData = await verifyRes.json();
+
+        if (verifyData.verified) {
+          await sendEmailToOwner(response.razorpay_payment_id);
+          setLoading(false);
+
+          navigate('/ticket', {
+            state: {
+              paymentId: response.razorpay_payment_id,
+              address,
+              place,
+              reservationData,
+              totalAmount
+            }
+          });
+        } else {
+          setLoading(false);
+          alert('Payment verification failed');
+        }
       },
       prefill: {
-        name: name,
-        email: email,
+        name,
+        email,
         contact: contactNumber,
       },
       theme: {
         color: "#F37254"
       }
     };
-  
-    const rzp1 = new window.Razorpay(options);
-    rzp1.open();
-  };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+
+  } catch (err) {
+    console.error("Payment error:", err);
+    alert("Payment failed. Please try again.");
+    setLoading(false);
+  }
+};
 
   const sendEmailToOwner = async (paymentId) => {
     console.log("Entered emailing function");

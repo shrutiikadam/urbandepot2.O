@@ -12,14 +12,13 @@ const Home = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
 
-  useEffect(() => {
-    const timer = setTimeout(() => setCarLoaded(true), 100);
-    const parkingTimer = setTimeout(() => setParkingVisible(true), 2500);
+   const [backendMsg, setBackendMsg] = useState("");
 
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(parkingTimer);
-    };
+  useEffect(() => {
+    fetch("/api/hello")
+      .then((res) => res.json())
+      .then((data) => setBackendMsg(data.message))
+      .catch((err) => console.error("Error:", err));
   }, []);
 
   const handleLogout = async () => {
